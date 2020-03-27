@@ -11,6 +11,21 @@ class Reminder {
     private $remind_before_mins; // the number of minutes before the starting date+time to send the reminder.
     // Null or 0 will send the email reminder at the start date+time.
     private $email;
+    // 
+    public function __construct($row = null) {
+        if ($row != null) {
+           $this->uid = $row['UID'];
+           $this->start_date = substr($row['start_date_time_utc'], 0, 10);
+           $this->start_time = substr($row['start_date_time_utc'], 11, 8);
+           $this->end_date = substr($row['end_date_time_utc'], 0, 10);
+           $this->end_time = substr($row['end_date_time_utc'], 11, 8);
+           $this->location = $row['location'];
+           $this->title = $row['title'];
+           $this->notes = $row['notes'];
+           $this->email = $row['email'];
+        }
+        return $this;
+    }
 
     public function toJSON() {
         $remindtime = 'stuff'; // do calculation to subtract $remind_before_mins from $start_time. 
@@ -74,8 +89,8 @@ class Reminder {
         $this->title = $title;
     }
 
-    public function get_description() {
-        return $this->description;
+    public function get_notes() {
+        return $this->notes;
     }
 
     public function set_notes($notes) {
@@ -96,6 +111,10 @@ class Reminder {
 
     public function set_email($email) {
         $this->email = $email;
+    }
+
+    public function get_uid() {
+        return $this->uid;
     }
     // ------------- Getters & Setters --------------------
 }

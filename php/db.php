@@ -7,6 +7,7 @@ class DB {
         // Returns a mysqli connection
         if (count($login) === 1) {
             $db_user = $login[0];
+            $db_pass = "";
         } else if (count($login) === 2) {
             $db_user = $login[0];
             $db_pass = $login[1];
@@ -28,11 +29,14 @@ class DB {
     // Runs the given query as a prepared statement.
     // $conn: The mysqli connection to execute against.
     // $sql: The query with placeholders to run.
-    // $bind_types: The string of types for mysqli to bind (e.g: 'ssi' = string, string, int).
-    // ...$args: The arguments for mysqli to bind.
-    public function execute(mysqli $conn, string $sql, string $bind_types, ...$args) : mysqli_stmt {
+    // ...$args: The bind types and the arguments for mysqli to bind. Bind types must come first (e.g: 'ssi' = string, string, int).
+    public function execute(mysqli $conn, string $sql, ...$args) : mysqli_stmt {
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param($bind_types, ...$args);
+
+        if (count($args) > 1) { // if an argument is given, there must be a bind_types
+            $stmt->bind_param(...$args);
+        }
+
         $stmt->execute();
 
         if ($stmt->errno) {
