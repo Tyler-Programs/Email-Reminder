@@ -1,4 +1,4 @@
-const URL_PATH = "http://127.0.0.1";
+const URL_PATH = "http://192.168.0.35";
 
 function setDefaultTZ(value) {
   document.getElementById("timezone").value = value;
@@ -35,7 +35,7 @@ function toggle_register() {
 
 function logout() {
   var xhttp = new XMLHttpRequest();
-  xhttp.open("GET", "http://127.0.0.1/login.php?logout=true", true);
+  xhttp.open("GET", "http://192.168.0.35/login.php?logout=true", true);
   xhttp.send();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
