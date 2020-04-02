@@ -1,15 +1,16 @@
 <?php 
     session_start(); // Begin the user's session
-    require './php/db.php';
-    require './php/consts.php';
-
+    //require 'php/consts.php';
+    require 'php/db.php';
+    include 'php/user.php';
+    
     /*
         TMP -- DEV, DISABLE LOGIN.. SET USER AS test@test.net, event_list_uid AS 1
     */
-    $_SESSION['user_email'] = 'test@test.net';
-    $_SESSION['event_list_uid'] = 1;
-    $_SESSION['valid_login'] = 'true';
-    header("LOCATION:" . URL_PATH . "/dashboard/dashboard.php");
+    //$_SESSION['user_email'] = 'tyler.r.lewis1@gmail.com';
+    //$_SESSION['event_list_uid'] = 1;
+    //$_SESSION['valid_login'] = 'true';
+    //header("Location: /my_dashboard/dashboard.php");
 
     auth_user();
 
@@ -21,130 +22,43 @@
             session_destroy();
             // let javascript do the redirecting
         } else {
-            header("Location:" . URL_PATH . "/reminder");
+            header("Location: /my_dashboard/dashboard.php");
+            exit();
         }
     }
 
     function auth_user() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $user_email = $_POST['email']; // TODO: Check if set
-            $user_pass = $_POST['password']; // TODO: Check if set, encrypt
-            $confirm_user_pass = $_POST['confirm_password']; // TODO: encrypt
+            //$user_email = $_POST['email']; // TODO: Check if set
+            //$user_pass = $_POST['password']; // TODO: Check if set, encrypt
+            //$confirm_user_pass = $_POST['confirm_password']; // TODO: encrypt
             $is_authed = false;
             $event_list_uid = -1;
 
-            if ($confirm_user_pass !== "") {
+            if ($_POST['confirm_password'] !== "") {
                 // The user is trying to register
-                if ($confirm_user_pass === $user_pass) {
-                    $user_email = validate_email($user_email);
-                    $user_pass = validate_pass($user_pass);
-                    if ($user_email !== "") {
-                        // TODO: insert into DB.
-                        $conn = connect();
-                        $sql = "INSERT INTO `user` (`email`, `password`) VALUES (?, ?);";
-                        $stmt = $conn->prepare($sql);
-                        $stmt->bind_param('ss', $user_email, $user_pass);
-                        $stmt->execute();
-
-                        if ($stmt->errno) {
-                            echo "Errno: " . $stmt->errno . "\n";
-                            echo "Error: " . $stmt->error . "\n";
-                        } else {
-                            echo "success";
-                            $is_authed = true;
-                            $event_list_uid = $stmt->insert_id;
-                        }
-                        // Free the stmt result and close the statement
-                        $stmt->free_result();
-                        $stmt->close();
-                    } else {
-                        // TODO: display error (invalid email address)
-                    }
-                } else {
-                    // TODO: display error (passwords do not match)
-                }
+                $user = new User();
+                $user->set_conn(DB::connect("reminder", "reminder_user", ""));
+                $is_authed = $user->register_user($_POST['email'], $_POST['password'], $_POST['confirm_password']);
             } else {
                 // The user is trying to log in
-                $conn = connect();
-                $sql = "SELECT * FROM `user` WHERE `user`.`email` = ?;";
-	            $stmt = $conn->prepare($sql);
-	            $stmt->bind_param('s', $user_email);
-	            $stmt->execute();
-	
-                if ($stmt->errno) {
-                    echo "Errno: " . $stmt->errno . "\n";
-                    echo "Error: " . $stmt->error . "\n";
-                } else {
-                    $res = $stmt->get_result();
-                    if ($res->num_rows === 0) {
-                        // No matching email
-                        // TODO: Display error (wrong email or password)
-                    } else {
-                        // Check that the password match
-                        $row = $res->fetch_row();
-                        //$is_authed = false;
-
-                        foreach ($res->fetch_fields() as $key => $value) {
-                            switch ($value->name) {
-                                case "email":
-                                    $email_authed = false;
-                                    if (strtolower($row[$key]) === strtolower($user_email)) {
-                                        $email_authed = true;
-                                    }
-                                break;
-                                case "password":
-                                    $pass_authed = false;
-                                    if ($row[$key] === $user_pass) {
-                                        $pass_authed = true;
-                                    }
-                                break;
-                                case "event_list_uid":
-                                    $event_list_uid = $row[$key];
-                                break;
-                            }
-                        }
-                        if ($email_authed === true && $pass_authed == true) {
-                            $is_authed = true;
-                        }
-
-                        if ($is_authed === true) {
-                            echo "logged in";
-                            // TODO: Redirect user
-                        } else {
-                            // TODO: Display error (wrong email or password)
-                            echo "incorrect log in information.";
-                        }
-                    }
-                }
-                // Free the stmt result and close the statement
-                $stmt->free_result();
-                $stmt->close();
+                $user = new User();
+                $user->set_email($_POST['email']);
+                $user->set_conn(DB::connect("reminder", "reminder_user", ""));
+                $is_authed = $user->login_user($_POST['password']);
+            
             }
 
             if ($is_authed === true) {
                 // TODO: Redirect to the dashboard (holds links to all modules). Remove current redirect.
                 // TODO: set user information in the session variable to keep them logged in
-                $_SESSION["user_email"] = $user_email;
-                $_SESSION["event_list_id"] = $event_list_uid;
+                $_SESSION["user_email"] = $user->get_email();
+                $_SESSION["event_list_id"] = $user->event_list_uid;
                 $_SESSION["valid_login"] = true;
-                header("Location: " . URL_PATH . "/reminder");
+                //header("Location: " . SERVER_URL_DEV . "/reminder");
+                header("Location: /my_dashboard/dashboard.php");
             }
         }
-    }
-
-    function validate_email(string $email) : string {
-        $email = trim($email);
-        $email = htmlspecialchars($email);
-        $email = stripslashes($email);
-        filter_var($email, FILTER_VALIDATE_EMAIL);
-        return $email;
-    }
-
-    function validate_pass(string $pass) : string {
-        $pass = trim($pass);
-        $pass = htmlspecialchars($pass);
-        $pass = stripslashes($pass);
-        return $pass;
     }
 ?>
 

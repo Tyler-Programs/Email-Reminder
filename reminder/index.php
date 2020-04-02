@@ -1,11 +1,9 @@
 <?php 
 declare(strict_types = 1);
 session_start();
-require '../php/consts.php';
-require './php/reminder.php';
-require '../php/db.php';
 
-define("DB_USER", "reminder_user");
+require 'reminder/php/reminder.php';
+require 'php/db.php';
 
 validateLogin(); // ensure that the user is logged in, else redirect them
 ?>
@@ -13,7 +11,7 @@ validateLogin(); // ensure that the user is logged in, else redirect them
 <html>
 <script src="../index.js"></script>
 <body>
-<p style="text-decoration: underline; color: blue; cursor: pointer;" onclick="window.location.href = 'http:\/\/127.0.0.1/dashboard/dashboard.php'"><<< Return to dashboard</p>
+<p style="text-decoration: underline; color: blue; cursor: pointer;" onclick="window.location.href = '/my_dashboard/dashboard.php'"><<< Return to dashboard</p>
 <p> Enter your email and a starting time for an event to receive and email reminder!
 * All times are UTC.
 </p>
@@ -92,12 +90,12 @@ function isEmptyAndRequired($fieldID) {
 function insert_reminder() {
 	$sql = "INSERT INTO `event` (`title`, `notes`, `start_date_time_utc`, `end_date_time_utc`, `send_date_time_utc`, `location`) VALUES (?, ?, ?, ?, ?, ?);";
     $db = new DB();
-    $conn = $db->connect("reminder", DB_USER);
-    $send_date_time = formatDate(calcSendTime());
-	$start_date_time = formatDate(new DateTime($_POST['start_date'] . " " . $_POST['start_time']));
-	$end_date_time = formatDate(new DateTime($_POST['end_date'] . " " . $_POST['end_time']));
+    $conn = DB::connect("reminder", "reminder_user", "");
+    $send_date_time = DB::formatDate(calcSendTime());
+	$start_date_time = DB::formatDate(new DateTime($_POST['start_date'] . " " . $_POST['start_time']));
+	$end_date_time = DB::formatDate(new DateTime($_POST['end_date'] . " " . $_POST['end_time']));
     $stmt = $db->execute($conn, $sql, "ssssss", $_POST['title'], $_POST['notes'], $start_date_time, $end_date_time, $send_date_time, $_POST['location']);
-    $sql = "INSERT INTO `event_list` (`event_UID`,`ID`) VALUES (?,?);";
+    $sql = "INSERT INTO `event_list` (`event_UID`,`UID`) VALUES (?,?);";
     $stmt = $db->execute($conn, $sql, "ii", $stmt->insert_id, $_SESSION['event_list_uid']);
     $stmt->close();
 }
@@ -109,15 +107,9 @@ function calcSendTime() : DateTime {
 	return $send_date_time;
 }
 
-// formateDate -- using the passed in DateTime object this function returns a string representation in the mysql compliant format
-// YYYY-MM-DD hh:mm:ss
-function formatDate(DateTime $date) : string {
-	return $date->format('Y-m-d H:i:s');
-}
-
 function validateLogin() {
-	if (!(isset($_SESSION["user_email"]) && $_SESSION["user_email"] !== "" && $_SESSION["valid_login"] === "true")) {
-		header("Location: " . URL_PATH);
+	if (!(isset($_SESSION["user_email"]) && $_SESSION["user_email"] !== "" && $_SESSION["valid_login"] === true)) {
+		header("Location: " . "/"); // invalid login, send the user back to the login page
 	}
 }
 ?>

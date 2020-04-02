@@ -1,9 +1,9 @@
 <?php declare(strict_types = 1);
-define("DB_CONN_STRING", "192.168.0.35");
 
 class DB {
+    private const DB_SERVER_URL = "192.168.0.35";
     // Connects to a mysql database. Must specify the database name.
-    public function connect(string $db_name, ...$login) : mysqli {
+    public static function connect(string $db_name, ...$login) : mysqli {
         // Returns a mysqli connection
         if (count($login) === 1) {
             $db_user = $login[0];
@@ -15,7 +15,7 @@ class DB {
             $db_user = "";
             $db_pass = "";
         }
-        $mysqli = new mysqli(DB_CONN_STRING, $db_user, $db_pass, $db_name);
+        $mysqli = new mysqli(DB::DB_SERVER_URL, $db_user, $db_pass, $db_name);
 
         if ($mysqli->connect_errno) {
             echo "ERROR CONNECTING TO DB\n";
@@ -46,6 +46,12 @@ class DB {
         } else {
             return $stmt;
         }
+    }
+
+    // formateDate -- using the passed in DateTime object this function returns a string representation in the mysql compliant format
+    // YYYY-MM-DD hh:mm:ss
+    public static function formatDate(DateTime $date) : string {
+        return $date->format('Y-m-d H:i:s');
     }
 }
 

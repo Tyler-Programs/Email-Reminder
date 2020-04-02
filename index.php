@@ -3,7 +3,9 @@
 <body>
 
 <?php 
-    header("Location: http://127.0.0.1/login.php");
+    // include './php/consts.php';
+    // include './reminder/php/scheduled_tasks.php';
+    header("Location: /login.php");
 ?>
 
 </body>

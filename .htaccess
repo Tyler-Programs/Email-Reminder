@@ -1,7 +1,7 @@
 RewriteEngine on
 
-RewriteCond %{REQUEST_METHOD} !^POST$
-RewriteRule ^.*/php/.*$ - [NC,R=404,L]
+#RewriteCond %{REQUEST_METHOD} !^POST$
+#RewriteRule ^.*/php/.*$ - [NC,R=404,L]
 
-RewriteCond %{REQUEST_METHOD} !^POST$
-RewriteRule ^php/.*$ - [NC,R=404,L]
+#RewriteCond %{REQUEST_METHOD} !^POST$
+#RewriteRule ^php/.*$ - [NC,R=404,L]

@@ -1,38 +1,34 @@
 <?php
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+//require '../../php/mail.php';
+//require 'php/user.php';
+require 'php/db.php';
 
-require '../../php/external/PHPMailer-master/src/Exception.php';
-require '../../php/external/PHPMailer-master/src/PHPMailer.php';
-require '../../php/external/PHPMailer-master/src/SMTP.php';
+$user = new User();
+/*
+$user = new User();
+$user->set_conn(DB::connect("reminder", "reminder_user", ""));
+$user->register_user("tyler.r.lewis1@gmail.com", "testpass", "testpass");
+*/
 
-/*$headers = "MIME-Version: 1.0" . "\r\n";
-$headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-$headers .= 'From: <Event_Reminder@example.com>' . "\r\n";
-mail("tyler.r.lewis1@gmail.com", "Tset Subject", "test body", $headers);*/
+/*$mailer = new Mailer(true);
+$code = generate_verification_code();
+$user_email = "tyler.r.lewis1@gmail.com";
+$subject = "Verification Email";
+$msg = "<h2>Thank you for registering with Dooter Services.</h2><p>Please click the link below to 
+verify your email:</p><br><a href='" . $_SERVER['SERVER_ADDR'] . "/verify.php'>" . $code . "</a><br>
+<p>This link will expire in 15 minutes.</p>";
+$mailer->add_email(new Email($user_email, $subject, $msg));
+$mailer->send_all_emails();
 
-$mail = new PHPMailer(true);
-try {
-    $mail->isSMTP();
-    $mail->Host = 'localhost';
-    $mail->Port = 25;
-    
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-    $mail->SMTPOptions = array(
-        'ssl' => array(
-        'verify_peer' => false,
-        'verify_peer_name' => false,
-        'allow_self_signed' => true
-        )
-        );
+function generate_verification_code() : string {
+    $characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+    $randString = "";
 
-    $mail->setFrom('dooterservice@gmail.com');
-    $mail->addAddress('tyler.r.lewis1@gmail.com');
-    $mail->Subject = 'Subject line stuff';
-    $mail->Body = 'Message body here!';
+    for ($i = 0; $i < 20; $i++) {
+        $idx = rand(0, strlen($characters) - 1);
+        $randString .= $characters[$idx];
+    }
 
-    $mail->send();
-} catch (Exception $e) {
-    echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-}
+    return $randString;
+}*/
 ?>
